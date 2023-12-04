@@ -1,4 +1,4 @@
-# Employees-Info
+# Employees info
 fetch information from working API and represents it as a table with some features.
 This is a test assignment. It represents a list of employees. MVVM architecture was used in its creation
 
