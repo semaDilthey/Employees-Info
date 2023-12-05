@@ -143,6 +143,7 @@ final class MainViewController: UIViewController {
     private func setupTableView() {
         tableView.dataSource = self
         tableView.delegate = self
+        tableView.prefetchDataSource = self
         
         tableView.register(MainCell.self, forCellReuseIdentifier: MainCell.identifier)
         tableView.backgroundColor = .kdSnowyWhite
@@ -291,6 +292,18 @@ extension MainViewController : SkeletonTableViewDataSource {
         cell.layoutMargins = UIEdgeInsets.zero
         cell.preservesSuperviewLayoutMargins = false
     }
+    
+}
+
+extension MainViewController : UITableViewDataSourcePrefetching {
+    func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
+        guard let viewModel = viewModel else { return }
+        for indexPath in indexPaths {
+            print("Prefetching rows at \(indexPath.row)")
+
+        }
+    }
+    
     
 }
 
