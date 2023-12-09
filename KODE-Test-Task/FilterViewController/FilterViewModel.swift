@@ -12,19 +12,16 @@ protocol FilterViewModelDelegate: AnyObject {
     func didSelectFilter(byBirthday: Bool?, bySurname: Bool?)
 }
 
-class FilterViewModel {
+protocol FilterViewModelProtocol {
+    func saveSwitchStates(bday : UISwitch, surname: UISwitch)
+    func loadSwitchStates(bday : UISwitch, surname: UISwitch)
+    func doneTapped(birthdayState byBirthday: Bool, surnameState bySurname: Bool)
+    
+}
+
+class FilterViewModel: FilterViewModelProtocol {
     
     weak var delegate : FilterViewModelDelegate?
-    
-    var mainViewModel: MainViewModel // инъекция зависимости
-
-    init(mainViewModel: MainViewModel) {
-        self.mainViewModel = mainViewModel
-    }
-
-    func doneTapped(birthdayState byBirthday: Bool, surnameState bySurname: Bool){
-        delegate?.didSelectFilter(byBirthday: byBirthday, bySurname: bySurname)
-    }
     
     func saveSwitchStates(bday : UISwitch, surname: UISwitch) {
         let userDefaults = UserDefaults.standard
@@ -57,6 +54,10 @@ class FilterViewModel {
             let isSurnameSwitchOn = userDefaults.bool(forKey: surnameKey)
             surname.isOn = isSurnameSwitchOn
         }
+    }
+    
+    func doneTapped(birthdayState byBirthday: Bool, surnameState bySurname: Bool) {
+        delegate?.didSelectFilter(byBirthday: byBirthday, bySurname: bySurname)
     }
     
     enum KeySwitch : String {

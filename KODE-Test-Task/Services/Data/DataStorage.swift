@@ -12,17 +12,17 @@ protocol DataStorageProtocol {
 }
 
 
-class DataStorage: DataStorageProtocol {
+struct DataStorage: DataStorageProtocol {
     
     var employees : [MainCellModelProtocol] = []
     
     let dictinary = ConstantsManager.shared.departaments
     
-    func addEmployee(employee: MainCellModelProtocol) {
+    mutating func addEmployee(employee: MainCellModelProtocol) {
         employees.append(employee)
     }
     
-    func removeEmployee(at index : Int) {
+    mutating func removeEmployee(at index : Int) {
         employees.remove(at: index)
     }
 }

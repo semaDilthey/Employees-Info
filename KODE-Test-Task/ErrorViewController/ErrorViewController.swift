@@ -10,10 +10,20 @@ import UIKit
 
 class ErrorViewController: UIViewController {
     
+    let viewModel: ErrorViewModelProtocol
+    
+    init(viewModel: ErrorViewModelProtocol = ErrorViewModel()) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        view.backgroundColor = .kdWhite
     }
     
     override func viewIsAppearing(_ animated: Bool) {
@@ -58,14 +68,16 @@ class ErrorViewController: UIViewController {
     }()
     
     @objc func tapButton() {
-        let coordinator = Coordinator()
-        coordinator.showwMainVC(controller: navigationController!)
+        guard let navigationController else { return }
+        viewModel.presentMainController(controller: navigationController)
     }
 }
 
 
 private extension ErrorViewController {
     func setupUI() {
+        view.backgroundColor = .kdWhite
+
         let labelsStack = UIStackView(arrangedSubviews: [mainLabel, middleLabel, againButton])
         labelsStack.translatesAutoresizingMaskIntoConstraints = false
         labelsStack.axis = .vertical

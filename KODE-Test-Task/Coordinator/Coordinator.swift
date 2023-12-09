@@ -12,7 +12,7 @@ protocol CoordinatorProtocol: AnyObject {
     func start(window: UIWindow)
     func showwMainVC(controller: UINavigationController)
     func showErrorController(controller: UINavigationController)
-    func showDetailsController(controller: UINavigationController)
+    func showDetailsController(controller: UINavigationController, dataStorage: DataStorageProtocol)
     
 }
 class Coordinator: CoordinatorProtocol {
@@ -35,8 +35,9 @@ class Coordinator: CoordinatorProtocol {
         setViewController(controller: controller, with: [vc])
     }
     
-    func showDetailsController(controller: UINavigationController) {
-        let vc = DetailsViewController(viewModel: DetailsViewModel(dataStorage: DataStorage()))
+    func showDetailsController(controller: UINavigationController, dataStorage: DataStorageProtocol) {
+        let viewModel = DetailsViewModel(dataStorage: dataStorage)
+        let vc = DetailsViewController(viewModel: viewModel)
         setViewController(controller: controller, with: [vc])
     }
     

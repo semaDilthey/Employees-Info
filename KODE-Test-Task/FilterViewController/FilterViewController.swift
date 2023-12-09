@@ -7,16 +7,11 @@
 
 import UIKit
 
-enum Sorting {
-    case byBirthday
-    case byAlphabet
-}
+final class FilterViewController: UIViewController {
 
-class FilterViewController: UIViewController {
+    private(set) var viewModel : FilterViewModelProtocol?
 
-    let viewModel : FilterViewModel?
-
-    init(viewModel: FilterViewModel?) {
+    init(viewModel: FilterViewModelProtocol?) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
@@ -203,6 +198,11 @@ extension FilterViewController {
             presentableStack.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -44)
         ])
     }
+}
+
+enum Sorting {
+    case byBirthday
+    case byAlphabet
 }
 
 

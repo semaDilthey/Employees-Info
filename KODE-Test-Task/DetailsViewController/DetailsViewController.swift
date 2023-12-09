@@ -8,11 +8,11 @@
 import Foundation
 import UIKit
 
-class DetailsViewController : UIViewController {
+final class DetailsViewController : UIViewController {
     
-    let viewModel : DetailsViewModel
+    private(set) var viewModel : DetailsViewModelProtocol
     
-    init(viewModel: DetailsViewModel) {
+    init(viewModel: DetailsViewModelProtocol) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
     }
@@ -167,7 +167,7 @@ class DetailsViewController : UIViewController {
         let option1 = UIAlertAction(title: phoneLabel.text, style: .default) { _ in
             
             guard let phoneNumber = self.phoneLabel.text else { return }
-            let phoneNumberWithMask = self.viewModel.callNumberMask(phone: phoneNumber)
+            let phoneNumberWithMask = Formatter.formatPhoneWithMask(phone: phoneNumber)
             if let phoneURL = URL(string: "tel://\(phoneNumberWithMask)") {
                     UIApplication.shared.open(phoneURL)
             } else {
@@ -197,9 +197,9 @@ class DetailsViewController : UIViewController {
             fullNameLabel.text = configuration.firstName + " " + configuration.lastName
             departmentLabel.text = configuration.department
             positionLabel.text = configuration.position
-            birtdateLabel.text = viewModel.formatDateString(configuration.birthday)
-            ageLabel.text = viewModel.calculateAge(from: configuration.birthday)!
-            phoneLabel.text = viewModel.formatPhoneWithMask(phone: configuration.phone)
+            birtdateLabel.text = Formatter.formatDate(configuration.birthday)
+            ageLabel.text = Formatter.calculateAge(birthday: configuration.birthday)
+            phoneLabel.text = Formatter.formatPhoneWithMask(phone: configuration.phone)
         }
     }
 }

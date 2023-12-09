@@ -297,7 +297,7 @@ extension MainViewController : SkeletonTableViewDataSource {
 
 extension MainViewController : UITableViewDataSourcePrefetching {
     func tableView(_ tableView: UITableView, prefetchRowsAt indexPaths: [IndexPath]) {
-        guard let viewModel = viewModel else { return }
+        guard let viewModel else { return }
         for indexPath in indexPaths {
             print("Prefetching rows at \(indexPath.row)")
 
@@ -313,8 +313,7 @@ extension MainViewController : UISearchBarDelegate  {
     
     func searchBarBookmarkButtonClicked(_ searchBar: UISearchBar) {
         
-        guard let viewModel = viewModel else { return }
-        let filterViewModel = FilterViewModel(mainViewModel: viewModel as! MainViewModel)
+        let filterViewModel = FilterViewModel()
         filterViewModel.delegate = self
         let sheetViewController = FilterViewController(viewModel: filterViewModel)
                 if let sheet = sheetViewController.sheetPresentationController {

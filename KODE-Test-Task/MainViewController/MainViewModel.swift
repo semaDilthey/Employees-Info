@@ -8,25 +8,38 @@
 import Foundation
 import UIKit
 
-protocol MainViewModelProtocol {
-    var networkManager : NetworkManager { get set }
-    var dataStorage : DataStorageProtocol { get set }
-    
+// Протокол для работы с данными
+protocol DataHandlingProtocol {
     func loadData(completion: @escaping () -> Void)
     func refreshData(completion: @escaping () -> Void)
-    
+}
+
+// Протокол для работы с сотрудниками и их фильтрацией
+protocol TableHandlingProtocol {
     func getEmployeeViewModel(at indexPath: IndexPath, in selectedDepartament: Int) -> MainCellModelProtocol?
     func numberOfRows(in selectedDepartament: Int) -> Int
+}
+   
+protocol EmployeeHandlingProtocol {
+    var employees: [MainCellModelProtocol]! { get set }
+    var employeeForPassing: [MainCellModelProtocol]? { get set }
+    var sortingMethod: Sorting? { get set }
     
-    var loadingState : LoadingState! { get set }
-    var employees : [MainCellModelProtocol]! { get set}
-    var employeeForPassing : [MainCellModelProtocol]? { get set }
-    var sortingMethod : Sorting? {get set}
-    
+    func filterBySortingMethod(byAlphabet: Bool?, byBirthday: Bool?)
+}
+
+// Протокол для отображения данных
+protocol PresentationHandlingProtocol {
     func presentCorrectSearchMessage(theCorrectSearchView: UIView, for parentView: UIView, present: Bool)
     func presentErrorController(navController: UINavigationController)
     func presentDetailsController(navController: UINavigationController)
-    func filterBySortingMethod(byAlphabet: Bool?, byBirthday: Bool?)
+}
+
+// Основной протокол, объединяющий остальные
+protocol MainViewModelProtocol: DataHandlingProtocol, TableHandlingProtocol, EmployeeHandlingProtocol, PresentationHandlingProtocol {
+    var dataStorage: DataStorageProtocol { get set }
+    var loadingState: LoadingState! { get set }
+    
 }
 
 
@@ -35,25 +48,15 @@ class MainViewModel : MainViewModelProtocol {
     var networkManager : NetworkManager
     var dataStorage : DataStorageProtocol
     
-    let filterViewModel: FilterViewModel?
-    
     // networking State (.loading, .success, .error)
     var loadingState : LoadingState!
-    
-    // copy of dataStorage.employees
-    var employees : [MainCellModelProtocol]!
-    
-    var employeeForPassing : [MainCellModelProtocol]? // use it as костыль для передачи в детаилс контроллер
-        
-    // sorting by Filter View Controller (.byBirthday, .byAlphabet)
-    var sortingMethod : Sorting? = nil
     
     init(networkManager: NetworkManager, dataStorage: DataStorageProtocol, filterViewModel: FilterViewModel?) {
         self.networkManager = networkManager
         self.dataStorage = dataStorage
-        self.filterViewModel = filterViewModel
     }
-    
+   
+    //MARK:  DataHandlingProtocol
     // загрузка даты
     func loadData(completion: @escaping () -> Void) {
         fetchData(completion: completion)
@@ -62,6 +65,8 @@ class MainViewModel : MainViewModelProtocol {
     func refreshData(completion: @escaping () -> Void) {
         fetchData(completion: completion)
     }
+    
+    //MARK: TableHandlingProtocol
     // создаем модельку ячейки для таблицы
     func getEmployeeViewModel(at indexPath: IndexPath, in selectedDepartament: Int) -> MainCellModelProtocol? {
         let filteredEmployees = filterEmployee(in: selectedDepartament)
@@ -69,13 +74,35 @@ class MainViewModel : MainViewModelProtocol {
                 return nil
             }
         return filteredEmployees[indexPath.row]
-      }
+    }
     
     // число ячеек в таблице в зависимости от выбранного департамента
     func numberOfRows(in selectedDepartament: Int) -> Int {
       let modelArray = filterEmployee(in: selectedDepartament)
         return modelArray.count
     }
+    
+    //MARK: EmployeeHandlingProtocol
+    // copy of dataStorage.employees
+    var employees : [MainCellModelProtocol]!
+    var employeeForPassing : [MainCellModelProtocol]? // use it as костыль для передачи в детаилс контроллер
+    // sorting by Filter View Controller (.byBirthday, .byAlphabet)
+    var sortingMethod : Sorting? = nil
+    
+    func filterBySortingMethod(byAlphabet: Bool?, byBirthday: Bool?) {
+        if let byBirthday, let byAlphabet {
+            if byBirthday {
+                sortingMethod = .byBirthday
+            } else if byAlphabet {
+                sortingMethod = .byAlphabet
+            } else {
+                sortingMethod = nil
+            }
+        }
+    }
+    
+    //MARK: PresentationHandlingProtocol
+
     // презентит вью в случае, если нет совпадений при поиске работников через UISearchBar
     func presentCorrectSearchMessage(theCorrectSearchView: UIView, for parentView: UIView, present: Bool) {
         if present {
@@ -98,19 +125,7 @@ class MainViewModel : MainViewModelProtocol {
     
     func presentDetailsController(navController: UINavigationController) {
         let coordinator = Coordinator()
-        coordinator.showDetailsController(controller: navController)
-    }
-    
-    func filterBySortingMethod(byAlphabet: Bool?, byBirthday: Bool?) {
-        if let byBirthday = byBirthday, let byAlphabet = byAlphabet {
-            if byBirthday {
-                sortingMethod = .byBirthday
-            } else if byAlphabet {
-                sortingMethod = .byAlphabet
-            } else {
-                sortingMethod = nil
-            }
-        }
+        coordinator.showDetailsController(controller: navController, dataStorage: dataStorage)
     }
 }
 
@@ -211,7 +226,7 @@ private extension MainViewModel {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
 
-        let currentDate = Date()
+//        let currentDate = Date()
        // let daysLeftBeforeNewYear = 365 - Calendar.current.ordinality(of: .day, in: .year, for: currentDate)!
         
         return employee.sorted { employee1, employee2 in
