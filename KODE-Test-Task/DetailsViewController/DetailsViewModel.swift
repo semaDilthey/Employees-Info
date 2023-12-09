@@ -9,6 +9,7 @@ import Foundation
 
 protocol DetailsViewModelProtocol {
     var dataStorage : DataStorageProtocol { get set }
+    
     func getDetailsConfiguration(at indexPath: IndexPath, with employees: [MainCellModelProtocol]) -> MainCellModelProtocol?
 }
 

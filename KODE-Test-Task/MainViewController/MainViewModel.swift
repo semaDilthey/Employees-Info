@@ -8,38 +8,31 @@
 import Foundation
 import UIKit
 
-// Протокол для работы с данными
-protocol DataHandlingProtocol {
-    func loadData(completion: @escaping () -> Void)
-    func refreshData(completion: @escaping () -> Void)
-}
 
-// Протокол для работы с сотрудниками и их фильтрацией
-protocol TableHandlingProtocol {
-    func getEmployeeViewModel(at indexPath: IndexPath, in selectedDepartament: Int) -> MainCellModelProtocol?
-    func numberOfRows(in selectedDepartament: Int) -> Int
-}
-   
-protocol EmployeeHandlingProtocol {
+protocol MainEmployeeHandlingProtocol {
     var employees: [MainCellModelProtocol]! { get set }
-    var employeeForPassing: [MainCellModelProtocol]? { get set }
-    var sortingMethod: Sorting? { get set }
-    
+    var employeeForPassing : [MainCellModelProtocol]? { get set }
     func filterBySortingMethod(byAlphabet: Bool?, byBirthday: Bool?)
 }
 
 // Протокол для отображения данных
-protocol PresentationHandlingProtocol {
-    func presentCorrectSearchMessage(theCorrectSearchView: UIView, for parentView: UIView, present: Bool)
+protocol MainPresentationHandlingProtocol {
+    func presentCorrectSearchMessage(view: UIView, for parentView: UIView, present: Bool)
     func presentErrorController(navController: UINavigationController)
     func presentDetailsController(navController: UINavigationController)
 }
 
 // Основной протокол, объединяющий остальные
-protocol MainViewModelProtocol: DataHandlingProtocol, TableHandlingProtocol, EmployeeHandlingProtocol, PresentationHandlingProtocol {
+protocol MainViewModelProtocol: MainEmployeeHandlingProtocol, MainPresentationHandlingProtocol {
     var dataStorage: DataStorageProtocol { get set }
     var loadingState: LoadingState! { get set }
+    var sortingMethod : Sorting? { get set }
     
+    func loadData(completion: @escaping () -> Void)
+    func refreshData(completion: @escaping () -> Void)
+    
+    func getEmployeeViewModel(at indexPath: IndexPath, in selectedDepartament: Int) -> MainCellModelProtocol?
+    func numberOfRows(in selectedDepartament: Int) -> Int
 }
 
 
@@ -51,7 +44,7 @@ class MainViewModel : MainViewModelProtocol {
     // networking State (.loading, .success, .error)
     var loadingState : LoadingState!
     
-    init(networkManager: NetworkManager, dataStorage: DataStorageProtocol, filterViewModel: FilterViewModel?) {
+    init(networkManager: NetworkManager, dataStorage: DataStorageProtocol) {
         self.networkManager = networkManager
         self.dataStorage = dataStorage
     }
@@ -104,16 +97,16 @@ class MainViewModel : MainViewModelProtocol {
     //MARK: PresentationHandlingProtocol
 
     // презентит вью в случае, если нет совпадений при поиске работников через UISearchBar
-    func presentCorrectSearchMessage(theCorrectSearchView: UIView, for parentView: UIView, present: Bool) {
+    func presentCorrectSearchMessage(view: UIView, for parentView: UIView, present: Bool) {
         if present {
-            theCorrectSearchView.translatesAutoresizingMaskIntoConstraints = false
-            parentView.addSubview(theCorrectSearchView)
-            theCorrectSearchView.centerXAnchor.constraint(equalTo: parentView.centerXAnchor).isActive = true
-            theCorrectSearchView.centerYAnchor.constraint(equalTo: parentView.centerYAnchor).isActive = true
-            theCorrectSearchView.widthAnchor.constraint(equalToConstant: parentView.frame.width - 100).isActive = true
-            theCorrectSearchView.heightAnchor.constraint(equalToConstant: parentView.frame.width - 200).isActive = true
+            view.translatesAutoresizingMaskIntoConstraints = false
+            parentView.addSubview(view)
+            view.centerXAnchor.constraint(equalTo: parentView.centerXAnchor).isActive = true
+            view.centerYAnchor.constraint(equalTo: parentView.centerYAnchor).isActive = true
+            view.widthAnchor.constraint(equalToConstant: parentView.frame.width - 100).isActive = true
+            view.heightAnchor.constraint(equalToConstant: parentView.frame.width - 200).isActive = true
         } else {
-            theCorrectSearchView.removeFromSuperview()
+            view.removeFromSuperview()
         }
         parentView.layoutIfNeeded()
     }

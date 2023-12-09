@@ -18,14 +18,14 @@ protocol CoordinatorProtocol: AnyObject {
 class Coordinator: CoordinatorProtocol {
     
     func start(window: UIWindow)  {
-        let viewModel = MainViewModel(networkManager: NetworkManager(), dataStorage: DataStorage(), filterViewModel: nil)
+        let viewModel = MainViewModel(networkManager: NetworkManager(), dataStorage: DataStorage())
         let vc = MainViewController(viewModel: viewModel)
         window.rootViewController = vc
         window.makeKeyAndVisible()
         }
     
     func showwMainVC(controller: UINavigationController) {
-        let viewModel = MainViewModel(networkManager: NetworkManager(), dataStorage: DataStorage(), filterViewModel: nil)
+        let viewModel = MainViewModel(networkManager: NetworkManager(), dataStorage: DataStorage())
         let vc = MainViewController(viewModel: viewModel)
         setViewController(controller: controller, with: [vc])
     }

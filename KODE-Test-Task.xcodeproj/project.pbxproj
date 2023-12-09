@@ -208,6 +208,7 @@
 		3F43ED9C2B0E8A8F0055BB1F /* MainViewController */ = {
 			isa = PBXGroup;
 			children = (
+				3F08F4C22B1E367C00CFCA4D /* AdditionalViews */,
 				3F51A3E62B0D08B500BDAA93 /* MainViewController.swift */,
 				3F51A3FC2B0D09A000BDAA93 /* MainViewModel.swift */,
 				3FB741EB2B16529700E7273A /* DepartamentsView */,
@@ -240,7 +241,6 @@
 				3F08F4C12B1E314A00CFCA4D /* Coordinator */,
 				3F43ED9C2B0E8A8F0055BB1F /* MainViewController */,
 				3FB985232B10C492006B420B /* DetailsViewController */,
-				3F08F4C22B1E367C00CFCA4D /* AdditionalViews */,
 				3FB741F02B166FC000E7273A /* FilterViewController */,
 				3FB9851B2B101D96006B420B /* ErrorViewController */,
 				3F12B6502B24DF760004DB6C /* Helpers */,

@@ -23,7 +23,6 @@ final class MainViewController: UIViewController {
     init(viewModel: MainViewModelProtocol) {
         self.viewModel = viewModel
         super.init(nibName: nil, bundle: nil)
-        view.backgroundColor = .kdSnowyWhite
     }
     
     required init?(coder: NSCoder) {
@@ -70,7 +69,7 @@ final class MainViewController: UIViewController {
     // настройка UI в зависимости от состояния сети
     private func updateUIaccordingToLoadingState() {
         
-        guard let viewModel = viewModel else { return }
+        guard let viewModel else { return }
         switch viewModel.loadingState {
         case .loading:
             showLoadingUI()
@@ -105,13 +104,14 @@ final class MainViewController: UIViewController {
     }
 
     private func showErrorUI() {
-        guard let navigationController = navigationController else { return }
+        guard let navigationController else { return }
         viewModel?.presentErrorController(navController: navigationController)
     }
 
     // MARK: - Private Methods for UI
 
     private func setupUI() {
+        view.backgroundColor = .kdSnowyWhite
         setupSearchBar()
         setupDepartaments()
         setupTableView()
@@ -237,7 +237,7 @@ extension MainViewController : UITableViewDelegate {
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        guard let viewModel = viewModel, let employeeForPassing = viewModel.employeeForPassing else { return }
+        guard let viewModel, let employeeForPassing = viewModel.employeeForPassing else { return }
         // Создаем экземпляр DetailsViewController с нужной вьюмоделью
         let vc = DetailsViewController(viewModel: DetailsViewModel(dataStorage: viewModel.dataStorage))
         let viewModelToOpen = vc.viewModel.getDetailsConfiguration(at: indexPath, with: employeeForPassing)
@@ -256,7 +256,7 @@ extension MainViewController : SkeletonTableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        guard let viewModel = viewModel else { return 1 }
+        guard let viewModel else { return 1 }
         if viewModel.loadingState == .loading {
             return 10
         } else {
@@ -266,7 +266,7 @@ extension MainViewController : SkeletonTableViewDataSource {
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: MainCell.identifier, for: indexPath) as! MainCell
-        if let viewModel = viewModel {
+        if let viewModel {
             if viewModel.loadingState == .loading {
                 cell.startSkeleton()
             }
@@ -324,35 +324,32 @@ extension MainViewController : UISearchBarDelegate  {
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         
-        guard var viewModel = viewModel else { return }
+        guard var viewModel else { return }
         viewModel.employees = []
         
         if searchText.isEmpty {
             viewModel.employees = viewModel.dataStorage.employees
-            viewModel.presentCorrectSearchMessage(theCorrectSearchView: correctView, for: view, present: false)
+            viewModel.presentCorrectSearchMessage(view: correctView, for: view, present: false)
             searchBar.resignFirstResponder()
         } else {
             viewModel.employees = viewModel.dataStorage.employees.filter {
                 $0.firstName.lowercased().contains(searchText.lowercased()) ||
                 $0.lastName.lowercased().contains(searchText.lowercased())
             }
-            viewModel.presentCorrectSearchMessage(theCorrectSearchView: correctView, for: view, present: false)
+            viewModel.presentCorrectSearchMessage(view: correctView, for: view, present: false)
         }
         
-        // Показываем сообщение, если нет результатов поиска
+        // Показываем CorrectSearchView, если нет результатов поиска
         if viewModel.employees.count == 0 {
             DispatchQueue.main.async {
                 self.tableView.reloadData()
             }
-            viewModel.presentCorrectSearchMessage(theCorrectSearchView: correctView, for: view, present: true)
+            viewModel.presentCorrectSearchMessage(view: correctView, for: view, present: true)
         }
         
         if refreshControl.isRefreshing {
             return
            }
-//        DispatchQueue.main.async {
-//            self.tableView.reloadData()
-//        }
     }
     
     func searchBarSearchButtonClicked(_ searchBar: UISearchBar) {
@@ -384,8 +381,8 @@ extension MainViewController: FilterViewModelDelegate {
     
     // Обработка выбора фильтрации
     func didSelectFilter(byBirthday: Bool?, bySurname: Bool?) {
-        
-        viewModel?.filterBySortingMethod(byAlphabet: bySurname, byBirthday: byBirthday)
+        guard let viewModel else { return }
+        viewModel.filterBySortingMethod(byAlphabet: bySurname, byBirthday: byBirthday)
         
                DispatchQueue.main.async {
                    self.tableView.reloadData()
