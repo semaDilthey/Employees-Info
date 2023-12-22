@@ -7,7 +7,6 @@
 
 import UIKit
 import SkeletonView
-import CoreGraphics
 
 final class MainViewController: UIViewController {
     
@@ -45,6 +44,7 @@ final class MainViewController: UIViewController {
             self.tableView.reloadData()
         }
     }
+
     
     // MARK: - Networking Methods
     
@@ -73,8 +73,10 @@ final class MainViewController: UIViewController {
         switch viewModel.loadingState {
         case .loading:
             showLoadingUI()
+            print("Loading")
         case .success:
             self.showSuccessUI()
+            print("Success")
         case .error(let string):
             print("Error description \(string)")
             DispatchQueue.main.async {
@@ -82,9 +84,7 @@ final class MainViewController: UIViewController {
             }
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                 self.showErrorUI()
-               }
-        case nil:
-            print("Here will be nil")
+            }
         }
     }
 
@@ -104,8 +104,7 @@ final class MainViewController: UIViewController {
     }
 
     private func showErrorUI() {
-        guard let navigationController else { return }
-        viewModel?.presentErrorController(navController: navigationController)
+        viewModel?.coordinator.showErrorController(navController: navigationController)
     }
 
     // MARK: - Private Methods for UI
@@ -131,9 +130,10 @@ final class MainViewController: UIViewController {
     }
     
     private func setupDepartaments() {
-        view.addSubview(departamentsView)
         departamentsView.backgroundColor = .red
         departamentsView.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.addSubview(departamentsView)
         departamentsView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
         departamentsView.leadingAnchor.constraint(equalTo: view.leadingAnchor).isActive = true
         departamentsView.trailingAnchor.constraint(equalTo: view.trailingAnchor).isActive = true
@@ -272,7 +272,7 @@ extension MainViewController : SkeletonTableViewDataSource {
             }
             if !viewModel.dataStorage.employees.isEmpty {
                 let cellViewModel = viewModel.getEmployeeViewModel(at: indexPath, in: departamentsView.selectedDepartament)
-                cell.viewModel = cellViewModel
+                cell.cellModel = cellViewModel
                 cell.startSkeleton()
                 cell.birthdayLabel.isHidden = viewModel.sortingMethod != .byBirthday
             }
@@ -340,7 +340,7 @@ extension MainViewController : UISearchBarDelegate  {
         }
         
         // Показываем CorrectSearchView, если нет результатов поиска
-        if viewModel.employees.count == 0 {
+        if viewModel.employees?.count == 0 {
             DispatchQueue.main.async {
                 self.tableView.reloadData()
             }

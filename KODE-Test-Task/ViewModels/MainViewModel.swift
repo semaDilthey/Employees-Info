@@ -10,7 +10,7 @@ import UIKit
 
 
 protocol MainEmployeeHandlingProtocol {
-    var employees: [MainCellModelProtocol]! { get set }
+    var employees: [MainCellModelProtocol]? { get set }
     var employeeForPassing : [MainCellModelProtocol]? { get set }
     func filterBySortingMethod(byAlphabet: Bool?, byBirthday: Bool?)
 }
@@ -18,14 +18,13 @@ protocol MainEmployeeHandlingProtocol {
 // Протокол для отображения данных
 protocol MainPresentationHandlingProtocol {
     func presentCorrectSearchMessage(view: UIView, for parentView: UIView, present: Bool)
-    func presentErrorController(navController: UINavigationController)
-    func presentDetailsController(navController: UINavigationController)
+    var coordinator : CoordinatorProtocol { get }
 }
 
 // Основной протокол, объединяющий остальные
 protocol MainViewModelProtocol: MainEmployeeHandlingProtocol, MainPresentationHandlingProtocol {
     var dataStorage: DataStorageProtocol { get set }
-    var loadingState: LoadingState! { get set }
+    var loadingState: LoadingState { get set }
     var sortingMethod : Sorting? { get set }
     
     func loadData(completion: @escaping () -> Void)
@@ -38,13 +37,14 @@ protocol MainViewModelProtocol: MainEmployeeHandlingProtocol, MainPresentationHa
 
 class MainViewModel : MainViewModelProtocol {
     
-    var networkManager : NetworkManager
+    var networkManager : Networking
     var dataStorage : DataStorageProtocol
+    var coordinator : CoordinatorProtocol = Coordinator()
     
     // networking State (.loading, .success, .error)
-    var loadingState : LoadingState!
+    var loadingState : LoadingState = .loading
     
-    init(networkManager: NetworkManager, dataStorage: DataStorageProtocol) {
+    init(networkManager: Networking, dataStorage: DataStorageProtocol) {
         self.networkManager = networkManager
         self.dataStorage = dataStorage
     }
@@ -77,8 +77,9 @@ class MainViewModel : MainViewModelProtocol {
     
     //MARK: EmployeeHandlingProtocol
     // copy of dataStorage.employees
-    var employees : [MainCellModelProtocol]!
+    var employees : [MainCellModelProtocol]?
     var employeeForPassing : [MainCellModelProtocol]? // use it as костыль для передачи в детаилс контроллер
+    
     // sorting by Filter View Controller (.byBirthday, .byAlphabet)
     var sortingMethod : Sorting? = nil
     
@@ -110,23 +111,12 @@ class MainViewModel : MainViewModelProtocol {
         }
         parentView.layoutIfNeeded()
     }
-    
-    func presentErrorController(navController: UINavigationController) {
-        let coordinator = Coordinator()
-        coordinator.showErrorController(controller: navController)
-    }
-    
-    func presentDetailsController(navController: UINavigationController) {
-        let coordinator = Coordinator()
-        coordinator.showDetailsController(controller: navController, dataStorage: dataStorage)
-    }
 }
 
 
 private extension MainViewModel {
     
     func fetchData(completion: @escaping () -> Void) {
-        loadingState = .loading
         DispatchQueue.main.asyncAfter(deadline: .now()+1) {
             self.networkManager.fetchUsersData(requestStatus: .success) { [weak self] data in
                 switch data {
@@ -138,7 +128,9 @@ private extension MainViewModel {
                     self?.loadingState = .error(error.localizedDescription)
                 }
                     completion()
-                self?.employees = self?.dataStorage.employees
+                if let dataEmployees = self?.dataStorage.employees {
+                    self?.employees = dataEmployees
+                }
             }
         }
         
@@ -165,14 +157,10 @@ private extension MainViewModel {
                 return []
             }
         var filteredEmployee: [MainCellModelProtocol]
-                  
+        guard let employees else { return [] }
         switch departament {
         case .all :
-            if let employees = employees {
-                    filteredEmployee = employees
-               } else {
-                   return []
-               }
+            filteredEmployee = employees
         case .analitycs :
             filteredEmployee = employees.filter { $0.department == "analytics"}
         case .android :
@@ -199,19 +187,36 @@ private extension MainViewModel {
             filteredEmployee = employees.filter { $0.department == "support"}
         }
          
-         switch sortingMethod {
-         case .byBirthday : 
-             filteredEmployee = sortPeopleByBirthday(filteredEmployee)
-         case .byAlphabet :
-             filteredEmployee.sort { $0.lastName < $1.lastName}
-         case nil :
-             employeeForPassing = filteredEmployee
-             return filteredEmployee
-         }
-
-         employeeForPassing = filteredEmployee
-         
-        return filteredEmployee
+//         switch sortingMethod {
+//         case .byBirthday : 
+//             filteredEmployee = sortPeopleByBirthday(filteredEmployee)
+//         case .byAlphabet :
+//             filteredEmployee.sort { $0.lastName < $1.lastName}
+//         case nil :
+//             employeeForPassing = filteredEmployee
+//             return filteredEmployee
+//         }
+//
+//         employeeForPassing = filteredEmployee
+//         
+//        return filteredEmployee
+         return sorting(sortingMethod: sortingMethod, employees: filteredEmployee)
+    }
+    
+    private func sorting(sortingMethod: Sorting?, employees: [MainCellModelProtocol]) -> [MainCellModelProtocol] {
+        var filteredEmployees = employees
+        switch sortingMethod {
+        case .byBirthday :
+            filteredEmployees = sortPeopleByBirthday(filteredEmployees)
+        case .byAlphabet :
+            filteredEmployees.sort { $0.lastName < $1.lastName}
+        case nil :
+            employeeForPassing = filteredEmployees
+            return filteredEmployees
+        }
+        employeeForPassing = filteredEmployees
+        
+        return filteredEmployees
     }
     
         

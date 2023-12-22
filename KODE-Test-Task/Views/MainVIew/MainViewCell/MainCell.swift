@@ -32,7 +32,6 @@ class MainCell: UITableViewCell {
     private func configureCell(with viewModel: MainCellModelProtocol?) {
         if let viewModel = viewModel {
             fullNameLabel.text = viewModel.firstName + " " + viewModel.lastName
-//            departmentLabel.text = viewModel.department
             let departmentCode = viewModel.department
             let constantsManager = ConstantsManager.shared
             if let departmentName = constantsManager.departaments[departmentCode] {
@@ -41,7 +40,7 @@ class MainCell: UITableViewCell {
                             departmentLabel.text = "Unknown departament"
                         }
             positionLabel.text = viewModel.position
-            birthdayLabel.text = formatDateString(viewModel.birthday)
+            birthdayLabel.text = Formatter.formatDateString(viewModel.birthday)
             avatarImage.set(imageURL: viewModel.avatarUrl)
         }
     }
@@ -58,13 +57,13 @@ class MainCell: UITableViewCell {
         super.prepareForReuse()
     }
     
-    var viewModel : MainCellModelProtocol? {
+    var cellModel : MainCellModelProtocol? {
         didSet {
-            configureCell(with: viewModel)
+            configureCell(with: cellModel)
         }
     }
     
-    let avatarImage : WebImageView = {
+    private let avatarImage : WebImageView = {
         let image = WebImageView()
         image.translatesAutoresizingMaskIntoConstraints = false
         image.backgroundColor = .white
@@ -76,7 +75,7 @@ class MainCell: UITableViewCell {
         return image
     }()
     
-    let fullNameLabel : UILabel = {
+    private let fullNameLabel : UILabel = {
         let label = UILabel()
         label.font = .interFont(size: 15, weight: .regular)
         label.textColor = .kdBlack
@@ -87,7 +86,7 @@ class MainCell: UITableViewCell {
         return label
     }()
     
-    let departmentLabel : UILabel = {
+    private let departmentLabel : UILabel = {
         let label = UILabel()
         label.font = .interFont(size: 14, weight: .medium)
         label.textColor = .kdLightGrey
@@ -97,7 +96,7 @@ class MainCell: UITableViewCell {
         return label
     }()
     
-    let positionLabel : UILabel = {
+    private let positionLabel : UILabel = {
         let label = UILabel()
         label.font = .interFont(size: 13, weight: .thin)
         label.textColor = .kdLightDark
@@ -118,35 +117,6 @@ class MainCell: UITableViewCell {
         return label
     }()
     
-    private func formatDateString(_ dateString: String) -> String? {
-        let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "yyyy-MM-dd"
-        
-        if let date = dateFormatter.date(from: dateString) {
-            dateFormatter.dateFormat = "dd MMM"
-            dateFormatter.locale = Locale(identifier: "en_EN")
-            return dateFormatter.string(from: date)
-        } else {
-            return nil
-        }
-    }
-    
-//    let separatorYearView = SeparatorView()
-    
-//    var separatorIsActive : Bool = false {
-//        didSet {
-//            if separatorIsActive {
-//                separatorYearView.translatesAutoresizingMaskIntoConstraints = false
-//                contentView.addSubview(separatorYearView)
-//                separatorYearView.heightAnchor.constraint(equalToConstant: 30).isActive = true
-//                separatorYearView.topAnchor.constraint(equalTo: avatarImage.topAnchor, constant: 10).isActive = true
-//                separatorYearView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
-//                separatorYearView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor).isActive = true
-//            } else {
-//                separatorYearView.translatesAutoresizingMaskIntoConstraints = true
-//            }
-//        }
-//    }
 }
 
 private extension MainCell {

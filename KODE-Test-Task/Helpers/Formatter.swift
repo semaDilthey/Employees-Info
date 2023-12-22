@@ -8,7 +8,7 @@
 import Foundation
 
 enum Formatter {
-    
+    /// Возращает форматированную дату в формате "29 october 2000"". Юзаем при конфигурации Details View Controller
     static func formatDate(_ dateString: String) -> String? {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
@@ -22,6 +22,21 @@ enum Formatter {
         }
     }
     
+    /// Возращает форматированную дату в формате "29 jun". Юзаем в ячейке Main
+    static func formatDateString(_ dateString: String) -> String? {
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy-MM-dd"
+        
+        if let date = dateFormatter.date(from: dateString) {
+            dateFormatter.dateFormat = "dd MMM"
+            dateFormatter.locale = Locale(identifier: "en_EN")
+            return dateFormatter.string(from: date)
+        } else {
+            return nil
+        }
+    }
+    
+    /// Возращает форматированную дату в формате "29 лет". Юзаем в ячейке Main
     static func calculateAge(birthday date: String) -> String? {
         let dateFormatter = DateFormatter()
         dateFormatter.dateFormat = "yyyy-MM-dd"
@@ -35,31 +50,29 @@ enum Formatter {
                 let lastTwoDigits = years % 100
                 
                 if lastTwoDigits >= 11 && lastTwoDigits <= 14 {
-                    return /*/"\(years) лет"*/ "\(years) years"
+                    return /*лет*/ "\(years) years"
                 } else if lastDigit == 1 {
-                    return /*"\(years) год"*/ "\(years) years"
+                    return /*год*/ "\(years) years"
                 } else if lastDigit >= 2 && lastDigit <= 4 {
-                    return /*"\(years) года"*/ "\(years) years"
+                    return /*года*/ "\(years) years"
                 } else {
-                    return /*"\(years) лет"*/ "\(years) years"
+                    return /*лет*/ "\(years) years"
                 }
             }
         }
         return nil
     }
     
+    /// Возращает форматированный номер. Юзаем в Details
     static func formatPhoneWithMask(phone: String) -> String {
         let numbers = phone.replacingOccurrences(of: "[^0-9]", with: "", options: .regularExpression)
         var result = ""
-        var index = numbers.startIndex // numbers iterator
+        var index = numbers.startIndex
         let mask = "+7 (XXX) XXX XXXX"
-        // iterate over the mask characters until the iterator of numbers ends
         for ch in mask where index < numbers.endIndex {
             if ch == "X" {
-                // mask requires a number in this place, so take the next one
                 result.append(numbers[index])
 
-                // move numbers iterator to the next index
                 index = numbers.index(after: index)
 
             } else {
@@ -69,22 +82,20 @@ enum Formatter {
         return result
     }
     
+    /// Возращает форматированный номер, необходимый уже для вызова. Юзаем в Details actions
     static func callNumberMask(phone: String) -> String {
         let numbers = phone.replacingOccurrences(of: "[^0-9]", with: "", options: .regularExpression)
         var result = ""
-        var index = numbers.startIndex // numbers iterator
+        var index = numbers.startIndex
         let mask = "+XXXXXXXXXXX"
-        // iterate over the mask characters until the iterator of numbers ends
         for ch in mask where index < numbers.endIndex {
             if ch == "X" {
-                // mask requires a number in this place, so take the next one
                 result.append(numbers[index])
 
-                // move numbers iterator to the next index
                 index = numbers.index(after: index)
 
             } else {
-                result.append(ch) // just append a mask character
+                result.append(ch) 
             }
         }
         return result

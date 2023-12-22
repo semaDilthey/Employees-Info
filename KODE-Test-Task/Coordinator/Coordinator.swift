@@ -10,11 +10,11 @@ import UIKit
 
 protocol CoordinatorProtocol: AnyObject {
     func start(window: UIWindow)
-    func showwMainVC(controller: UINavigationController)
-    func showErrorController(controller: UINavigationController)
-    func showDetailsController(controller: UINavigationController, dataStorage: DataStorageProtocol)
-    
+    func showwMainVC(navController: UINavigationController?)
+    func showErrorController(navController: UINavigationController?)
+    func showDetailsController(navController: UINavigationController?, dataStorage: DataStorageProtocol)
 }
+
 class Coordinator: CoordinatorProtocol {
     
     func start(window: UIWindow)  {
@@ -24,22 +24,26 @@ class Coordinator: CoordinatorProtocol {
         window.makeKeyAndVisible()
         }
     
-    func showwMainVC(controller: UINavigationController) {
+    func showwMainVC(navController: UINavigationController?) {
+        guard let navController else { return }
         let viewModel = MainViewModel(networkManager: NetworkManager(), dataStorage: DataStorage())
         let vc = MainViewController(viewModel: viewModel)
-        setViewController(controller: controller, with: [vc])
+        setViewController(controller: navController, with: [vc])
     }
     
-    func showErrorController(controller: UINavigationController) {
+    func showErrorController(navController: UINavigationController?) {
+        guard let navController else { return }
         let vc = ErrorViewController()
-        setViewController(controller: controller, with: [vc])
+        setViewController(controller: navController, with: [vc])
     }
     
-    func showDetailsController(controller: UINavigationController, dataStorage: DataStorageProtocol) {
+    func showDetailsController(navController: UINavigationController?, dataStorage: DataStorageProtocol) {
+        guard let navController else { return }
         let viewModel = DetailsViewModel(dataStorage: dataStorage)
         let vc = DetailsViewController(viewModel: viewModel)
-        setViewController(controller: controller, with: [vc])
+        setViewController(controller: navController, with: [vc])
     }
+
     
     private func setViewController(controller: UINavigationController, with viewControllers: [UIViewController], animated: Bool = true) {
         var vcArray = controller.viewControllers

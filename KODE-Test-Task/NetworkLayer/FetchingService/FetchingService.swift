@@ -13,6 +13,8 @@ protocol FetchingServiceProtocol {
 
 class FetchingService : FetchingServiceProtocol {
     
+    let parser : ParserProtocol = Parser()
+    
     func getData<T: Decodable>(from urlString: String, requestStatus: RequestStatus, completion: @escaping (Result<T, Error>) -> Void) {
         guard let url = URL(string: urlString) else {
             completion(.failure(NetworkError.invalidURL))
@@ -31,35 +33,12 @@ class FetchingService : FetchingServiceProtocol {
                 completion(.failure(NetworkError.invalidResponse))
                 return
             }
-            
-            guard let data = data else {
-                completion(.failure(NetworkError.noData))
-                return
-            }
-            
-            do {
-                let decoder = JSONDecoder()
-                decoder.keyDecodingStrategy = .convertFromSnakeCase
-                if let parsedData = try? decoder.decode(T.self, from: data) {
-                    completion(.success(parsedData))
-                } else {
-                    completion(.failure(NetworkError.jsonParsingFailed))
-                }
-            } catch {
-                completion(.failure(NetworkError.jsonParsingFailed))
-            }
+            self.parser.decodeJSON(type: T.self, from: data, completion: completion)
         }
         
         task.resume()
     }
     
-    
-    private func decodeJSON <T: Decodable>(type: T.Type, from data: Data?) -> T? {
-        let decoder = JSONDecoder()
-        decoder.keyDecodingStrategy = .convertFromSnakeCase
-        guard let data = data, let response = try? decoder.decode(type.self, from: data) else { return nil }
-        return response
-    }
     
     private func getHttpsStatus(url: URL, requestStatus: RequestStatus) -> URLRequest {
         var request = URLRequest(url: url)

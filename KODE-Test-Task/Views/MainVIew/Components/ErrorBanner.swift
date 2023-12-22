@@ -21,15 +21,15 @@ class ErrorBanner: UIView {
         return text
     }()
     
-    enum ErrorType : String {
-        case noInternet = "Сan't update the data. \nCheck the internet connection"
-        case badAPI = "Не могу получить данные. \nПроблемы с интернет-сервером"
-    }
-    
     func setupUI() {
         addSubview(text)
         text.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 24).isActive = true
         text.bottomAnchor.constraint(equalTo: bottomAnchor,constant: -15).isActive = true
+    }
+    
+    enum ErrorType : String {
+        case noInternet = "Сan't update the data. \nCheck the internet connection"
+        case badAPI = "Не могу получить данные. \nПроблемы с интернет-сервером"
     }
     
 }

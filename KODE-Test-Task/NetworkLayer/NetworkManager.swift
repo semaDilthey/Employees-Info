@@ -7,7 +7,11 @@
 
 import Foundation
 
-class NetworkManager {
+protocol Networking {
+    func fetchUsersData(requestStatus: RequestStatus, completion: @escaping (Result<Employee, Error>) -> Void)
+}
+
+class NetworkManager : Networking {
     
     let fetchingService : FetchingServiceProtocol?
     

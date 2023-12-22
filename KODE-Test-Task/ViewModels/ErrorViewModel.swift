@@ -15,6 +15,6 @@ protocol ErrorViewModelProtocol {
 class ErrorViewModel : ErrorViewModelProtocol {
     func presentMainController(controller: UINavigationController) {
         let coordinator = Coordinator()
-        coordinator.showwMainVC(controller: controller)
+        coordinator.showwMainVC(navController: controller)
     }
 }

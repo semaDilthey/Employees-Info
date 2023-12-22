@@ -8,10 +8,14 @@
 import UIKit
 
 class CorrectSearchView: UIView {
-
-    override func draw(_ rect: CGRect) {
-        super.draw(rect)
+    
+    override init(frame: CGRect) {
+        super.init(frame: frame)
         setupUI()
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     private let image : UIImageView = {

@@ -15,9 +15,7 @@ protocol DataStorageProtocol {
 struct DataStorage: DataStorageProtocol {
     
     var employees : [MainCellModelProtocol] = []
-    
-    let dictinary = ConstantsManager.shared.departaments
-    
+        
     mutating func addEmployee(employee: MainCellModelProtocol) {
         employees.append(employee)
     }
